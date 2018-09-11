@@ -7,35 +7,51 @@ public class PlayerMovement : MonoBehaviour {
     //these will allow you to change the values in the unity editor
     [SerializeField] private Transform trans;
     [SerializeField] private Rigidbody rb;
+	[SerializeField] private float radOfSat;
 
 	private float moveSpeed;
 	private float turnSpeed;
+	private Vector3 mousePosition;
+	private Vector3 towards = Vector3.zero;
 
 	private void Start () {
-		moveSpeed = 5f;
+		moveSpeed = 7f;
 		turnSpeed = 5f;
-
+		mousePosition = Vector3.zero;
+		//towards = trans.position;
     }
 
 	private void Update () {
-
-		Vector3 inputVector = Vector3.zero;
       
 
         if(Input.GetMouseButtonDown(0))
         {
-            inputVector += Vector3.MoveTowards(trans.position, Input.mousePosition, 1000f);
+			Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
+			RaycastHit hit;
+
+			if (Physics.Raycast (ray, out hit, 100f)) {
+			
+				mousePosition = (hit.point + Vector3.up);
+
+				towards = mousePosition - trans.position;
+			
+			}
             //Debug.Log("Click");
         }
-
-		// Normalize input vector to standardize movement speed
-		inputVector.Normalize ();
-		inputVector *= moveSpeed;
-		rb.velocity = inputVector;
-
 		// Face player along movement vector
-		Quaternion targetRotation = Quaternion.LookRotation (inputVector);
+		Quaternion targetRotation = Quaternion.LookRotation(towards);
 
 		trans.rotation = Quaternion.Lerp (trans.rotation, targetRotation, turnSpeed * Time.deltaTime);
+
+			if(Vector3.Distance(trans.position, mousePosition) > radOfSat)
+			{
+				towards.Normalize();
+				towards = towards * (moveSpeed * Time.deltaTime);
+
+				transform.position += towards;
+				
+			}
+
+		
 	}
 }
