@@ -18,7 +18,6 @@ public class PlayerMovement : MonoBehaviour {
 		moveSpeed = 7f;
 		turnSpeed = 5f;
 		mousePosition = Vector3.zero;
-		//towards = trans.position;
     }
 
 	private void Update () {
