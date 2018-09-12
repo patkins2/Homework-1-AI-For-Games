@@ -7,14 +7,21 @@ public class PlayerMovement : MonoBehaviour {
     //these will allow you to change the values in the unity editor
     [SerializeField] private Transform trans;
     [SerializeField] private Rigidbody rb;
-	[SerializeField] private float radOfSat;
+	[SerializeField] private float radOfSat; //radius of satisfaction
 
-	private float moveSpeed;
-	private float turnSpeed;
-	private Vector3 mousePosition;
-	private Vector3 towards = Vector3.zero;
+	private float moveSpeed; //move speed
+	private float turnSpeed; //turn speed
+	private Vector3 mousePosition; //mouse position
+	private Vector3 towards = Vector3.zero; //vector for the direction the player needs to go
+    /*
+     * So I kept running into a problem where the player either sunk into the ground or floated above it.
+     * On line 43 I had it say mousePosition = (hit.point + Vector3.up) which made the player float or mousePosition = (hit.point + Vector3.forward) which made the player sink.
+     * So I decided to make a custom vector with a y-axis value of my choice to try and get it to not sink/float.
+     * Since Vector3.up is (0,1,0) and Vector3.forward is (0,0,1), 0.5f is the halfway point which means the character should rest right on the plane
+     */
+    private Vector3 dontSinkOrFloat; //custom vector to prevent floating or sinking
 
-	private void Start () {
+    private void Start () {
 		moveSpeed = 7f;
 		turnSpeed = 5f;
 		mousePosition = Vector3.zero;
@@ -22,16 +29,18 @@ public class PlayerMovement : MonoBehaviour {
 
 	private void Update () {
       
-
-        if(Input.GetMouseButtonDown(0))
+        if(Input.GetMouseButtonDown(0)) //if the mouse is clicked
         {
             //set up the variable that will get the position of the mouse through the camera
 			Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
 			RaycastHit hit;
 
 			if (Physics.Raycast (ray, out hit, 100f)) { //this checks if the ray intersected with any objects i.e. the ray (mouse position), what it hit, and the maximum distance
-			
-				mousePosition = (hit.point + Vector3.forward);
+
+
+                dontSinkOrFloat[1] = 0.5f; // basically makes the vector equal this --> [0, 0.5f, 0]
+
+				mousePosition = (hit.point + dontSinkOrFloat); //Don't sink or float!!!
 
 				towards = mousePosition - trans.position; //the vector in which the player needs to travel
 			
